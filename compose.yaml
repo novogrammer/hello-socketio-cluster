@@ -2,12 +2,18 @@ version: "3.9"
 
 services:
   redis:
-    image: redis:7
+    image: redis:7.4.1-alpine
     container_name: redis
     volumes:
       - "./redis/data:/data"
     ports:
       - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 15
 
   server1:
     build: ./server
@@ -18,7 +24,8 @@ services:
       - PORT=3001
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
 
   server2:
     build: ./server
@@ -29,10 +36,11 @@ services:
       - PORT=3002
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
 
   caddy:
-    image: caddy:2
+    image: caddy:2.10.0-alpine
     container_name: caddy
     ports:
       - "8080:8080"
