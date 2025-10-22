@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    volumes:
+      - "./redis/data:/data"
+    ports:
+      - "6379:6379"
+
+  server1:
+    build: ./server
+    container_name: socketio-server1
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  server2:
+    build: ./server
+    container_name: socketio-server2
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - server1
+      - server2
