@@ -15,29 +15,15 @@ services:
       timeout: 5s
       retries: 15
 
-  server1:
+  server:
     build: ./server
-    container_name: socketio-server1
-    ports:
-      - "3001:3001"
     environment:
-      - PORT=3001
+      - PORT=3000
       - REDIS_URL=redis://redis:6379
     depends_on:
       redis:
         condition: service_healthy
 
-  server2:
-    build: ./server
-    container_name: socketio-server2
-    ports:
-      - "3002:3002"
-    environment:
-      - PORT=3002
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      redis:
-        condition: service_healthy
 
   caddy:
     image: caddy:2.10.0-alpine
@@ -47,5 +33,4 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
     depends_on:
-      - server1
-      - server2
+      - server
