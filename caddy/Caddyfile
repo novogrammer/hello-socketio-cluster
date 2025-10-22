@@ -1,7 +1,9 @@
 :8080 {
-    reverse_proxy {
-        to server:3000  # "server"サービスにスケールされた全インスタンスを自動検出する、ただしDocker Compose環境だとうまく動かない
-        lb_policy ip_hash
+    reverse_proxy * {
+        to hello-socketio-cluster-server-1:3000
+        to hello-socketio-cluster-server-2:3000
+        to hello-socketio-cluster-server-3:3000
+        lb_policy cookie SRVNAME 1h
         header_up Host {host}
         header_up Upgrade {>Upgrade}
         header_up Connection {>Connection}
