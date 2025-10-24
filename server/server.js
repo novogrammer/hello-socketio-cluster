@@ -41,12 +41,13 @@ io.on("connection", socket => {
   })
 })
 
+// 自ノードのcount差分をredisで集計し、自ノードにのみ配信する。
 setInterval(()=>{
   const localCountCopy = localCount;
   localCount = 0;
   dataClient.incrBy("vote:total",localCountCopy).then((totalCount)=>{
     if(previousTotalCount != totalCount){
-      io.emit("total",totalCount);
+      io.local.emit("total",totalCount);
       previousTotalCount = totalCount;
     }
   })
