@@ -1,3 +1,4 @@
+import os from "os"
 import express from "express"
 import { createServer } from "http"
 import { Server } from "socket.io"
@@ -16,11 +17,13 @@ await pubClient.connect()
 await subClient.connect()
 io.adapter(createAdapter(pubClient, subClient))
 
+const instanceId = os.hostname()
+
 io.on("connection", socket => {
-  console.log(`client connected to ${process.env.PORT}`)
+  console.log(`client connected to ${instanceId}`)
   socket.on("msg", data => {
-    console.log(`msg from ${process.env.PORT}: ${data}`)
-    io.emit("msg", `from ${process.env.PORT}: ${data}`)
+    console.log(`msg from ${instanceId}: ${data}`)
+    io.emit("msg", `from ${instanceId}: ${data}`)
   })
 })
 
