@@ -22,6 +22,7 @@ for (let i = 0; i < CLIENTS; i++) {
         clearInterval(intervalTimeout);
         doneCount += 1;
         console.log(`doneCount: ${doneCount}`);
+        socket.disconnect();
       }
     }, INTERVAL)
   })
