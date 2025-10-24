@@ -25,6 +25,10 @@ io.on("connection", socket => {
     console.log(`msg from ${instanceId}: ${data}`)
     io.emit("msg", `from ${instanceId}: ${data}`)
   })
+
+  socket.on("disconnect", reason => {
+    console.log(`client disconnected from ${instanceId}: ${reason}`)
+  })
 })
 
 httpServer.listen(process.env.PORT)
