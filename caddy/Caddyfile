@@ -1,11 +1,13 @@
 :8080 {
     reverse_proxy * {
+        # to server:3000
+        # DNSにまかせずに個別のコンテナのホスト名を並べる
         to hello-socketio-cluster-server-1:3000
         to hello-socketio-cluster-server-2:3000
         to hello-socketio-cluster-server-3:3000
+
+        # Sticky cookieで接続固定
         lb_policy cookie SRVNAME 1h
-        header_up Host {host}
-        header_up Upgrade {>Upgrade}
-        header_up Connection {>Connection}
+
     }
 }
