@@ -13,11 +13,16 @@ const io = new Server(httpServer, { cors: { origin: "*" } })
 
 const pubClient = createClient({ url: process.env.REDIS_URL })
 const subClient = pubClient.duplicate()
+const dataClient = pubClient.duplicate()
 await pubClient.connect()
 await subClient.connect()
+await dataClient.connect()
 io.adapter(createAdapter(pubClient, subClient))
 
 const instanceId = os.hostname()
+
+let previousTotalCount = -1;
+let localCount = 0;
 
 io.on("connection", socket => {
   console.log(`client connected to ${instanceId}`)
@@ -25,11 +30,28 @@ io.on("connection", socket => {
     console.log(`msg from ${instanceId}: ${data}`)
     io.emit("msg", `from ${instanceId}: ${data}`)
   })
+  socket.on("vote", () =>{
+    localCount++;
+  })
+  // 接続時にtotalを送っておく
+  socket.emit("total",previousTotalCount);
 
   socket.on("disconnect", reason => {
     console.log(`client disconnected from ${instanceId}: ${reason}`)
   })
 })
+
+setInterval(()=>{
+  const localCountCopy = localCount;
+  localCount = 0;
+  dataClient.incrBy("vote:total",localCountCopy).then((totalCount)=>{
+    if(previousTotalCount != totalCount){
+      io.emit("total",totalCount);
+      previousTotalCount = totalCount;
+    }
+  })
+},100);
+
 
 httpServer.listen(process.env.PORT)
 console.log("listening on", process.env.PORT)

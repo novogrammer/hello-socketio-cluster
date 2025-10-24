@@ -4,6 +4,9 @@ const messages = document.getElementById("messages");
 const input = document.getElementById("msg");
 const button = document.getElementById("send");
 
+const totalElement = document.getElementById("total");
+const voteElement = document.getElementById("vote");
+
 const sendMessage = () => {
   const text = input.value.trim();
   if (!text) return;
@@ -12,6 +15,14 @@ const sendMessage = () => {
 };
 
 button.onclick = sendMessage;
+
+voteElement.onclick = ()=>{
+  socket.emit("vote");
+}
+
+socket.on("total",(total)=>{
+  totalElement.innerText = total;
+})
 
 input.addEventListener("keydown", event => {
   if (event.isComposing || event.key === "Process" || event.keyCode === 229) {
